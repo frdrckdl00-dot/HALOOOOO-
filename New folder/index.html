@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Message for you</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+      font-family: "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      max-width: 350px;
+      width: 90%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .question {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .gif {
+      width: 250px;
+      height: auto;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      transition: all 0.5s ease;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    button {
+      padding: 12px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .yes-btn {
+      background: #4caf50;
+      color: white;
+    }
+
+    .no-btn {
+      background: #f44336;
+      color: white;
+      position: relative;
+      transition: all 0.4s ease;
+    }
+
+    /* Bounce animation for gif */
+    .bounce {
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    /* Floating hearts */
+    .heart {
+      position: absolute;
+      color: red;
+      font-size: 24px;
+      animation: floatUp 4s linear forwards;
+      z-index: 1;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-600px); opacity: 0; }
+    }
+
+    /* Fireworks */
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 class="question">You like me?</h2>
+    <img class="gif" alt="gif" src="https://raw.githubusercontent.com/DzarelDeveloper/Img/main/gifyou.webp">
+    <div class="btn-group">
+      <button class="yes-btn">Yes</button>
+      <button class="no-btn">No</button>
+    </div>
+  </div>
+
+  <canvas id="fireworks"></canvas>
+
+  <script>
+    const noBtn = document.querySelector('.no-btn');
+    const yesBtn = document.querySelector('.yes-btn');
+    const gif = document.querySelector('.gif');
+    const question = document.querySelector('.question');
+    let clickCount = 0;
+
+    // No button runs away, fades, and changes text
+    noBtn.addEventListener('click', () => {
+      clickCount++;
+      const randomX = Math.floor(Math.random() * 200 - 100);
+      const randomY = Math.floor(Math.random() * 100 - 50);
+      noBtn.style.transform = `translate(${randomX * clickCount}px, ${randomY * clickCount}px)`;
+      noBtn.style.opacity = 1 - (clickCount * 0.2);
+
+      // Change question text depending on clicks
+      if (clickCount === 1) {
+        question.textContent = "Are you sure?";
+      } else if (clickCount === 2) {
+        question.textContent = "Really?";
+      } else if (clickCount === 3) {
+        question.textContent = "Think again...";
+      } else if (clickCount === 4) {
+        question.textContent = "Come on Araaa 😢";
+      }
+
+      if (clickCount >= 5) {
+        noBtn.style.display = 'none';
+      }
+    });
+
+    // Yes button changes gif + text + hearts + fireworks
+    yesBtn.addEventListener('click', () => {
+      question.textContent = "I like you too Araaaaaaaa :)";
+      gif.src = "stitch.gif";  // <-- your local stitch gif
+      gif.classList.add("bounce");
+
+      // Floating hearts
+      for (let i = 0; i < 20; i++) {
+        createHeart();
+      }
+
+      // Fireworks
+      launchFireworks();
+    });
+
+    // Hearts generator
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.classList.add("heart");
+      heart.innerHTML = "❤️";
+      document.body.appendChild(heart);
+
+      const left = Math.random() * window.innerWidth;
+      heart.style.left = left + "px";
+      heart.style.bottom = "0px";
+
+      setTimeout(() => {
+        heart.remove();
+      }, 4000);
+    }
+
+    // Fireworks
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function launchFireworks() {
+      const particles = [];
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          radius: random(2, 4),
+          color: `hsl(${random(0, 360)}, 100%, 50%)`,
+          speedX: random(-5, 5),
+          speedY: random(-5, 5),
+          alpha: 1
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, i) => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+          p.alpha -= 0.01;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.alpha;
+          ctx.fill();
+          ctx.globalAlpha = 1;
+        });
+      }
+
+      let interval = setInterval(animate, 30);
+      setTimeout(() => clearInterval(interval), 2000);
+    }
+  </script>
+</body>
+</html>
